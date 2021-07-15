@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface OpenWeatherService {
-    @GET("weather?q=Paris")
+    @GET("weather")
     suspend fun getCurrentWeather(
         @Query("q") location: String,
         @Query("lang") languageCode: String,
