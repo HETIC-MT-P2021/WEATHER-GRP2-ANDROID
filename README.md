@@ -2,7 +2,7 @@
 
 ## Where am I ? 💡
 
-Welcome on our Android Weather App. This android app allow you to choose cities where you will be able to get weather forecasts on your smartphone.
+Welcome on our Android Weather App. This app allows you to choose cities where you will be able to get weather forecasts on your smartphone.
 
 - To submit bug reports and feature suggestions, or track changes:
   https://github.com/HETIC-MT-P2021/WEATHER-GRP2-ANDROID/issues
