@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.google.secrets_gradle_plugin' version '0.4'
 }
 
 android {
@@ -9,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.weather"
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
