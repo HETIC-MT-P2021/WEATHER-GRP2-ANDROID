@@ -1,19 +1,28 @@
 package com.example.weather.ui.home
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
+import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.databinding.FragmentHomeBinding
+import com.example.weather.model.HourWeather
 
 class HomeFragment : Fragment() {
 
     private lateinit var homeViewModel: HomeViewModel
+    lateinit var rvAdapterHours: HoursWeatherAdapter
     private var _binding: FragmentHomeBinding? = null
 
     // This property is only valid between onCreateView and
@@ -32,9 +41,22 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         val textView: TextView = binding.weather
+        val rvHours: RecyclerView = binding.hoursWeatherRecyclerView
+
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
+
+        homeViewModel.recyclerViewHours.observe(viewLifecycleOwner, Observer {
+            if (container != null) {
+                val layoutManager = LinearLayoutManager(context)
+                layoutManager.orientation = RecyclerView.HORIZONTAL
+                rvHours.layoutManager = layoutManager
+                rvAdapterHours = HoursWeatherAdapter(it, container.context)
+                rvHours.adapter = rvAdapterHours
+            }
+        })
+
         return root
     }
 
