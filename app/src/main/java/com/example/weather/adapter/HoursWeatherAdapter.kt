@@ -9,10 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.databinding.RecyclerviewHourBinding
 import com.example.weather.model.HourWeather
+import com.example.weather.model.HourlyWeatherInfo
 import com.squareup.picasso.Picasso
 
 class HoursWeatherAdapter (
-    private val arrayList: ArrayList<HourWeather>,
+    private val arrayList: List<HourlyWeatherInfo>,
     private val context: Context
 ) : RecyclerView.Adapter<HoursWeatherAdapter.HoursWeatherViewHolder>(){
 
@@ -33,9 +34,9 @@ class HoursWeatherAdapter (
     }
 
     inner  class HoursWeatherViewHolder(private val binding: RecyclerviewHourBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(hour: HourWeather){
-            binding.theHour.text = hour.hour
-            binding.hourTemp.text = hour.temp
+        fun bind(hour: HourlyWeatherInfo){
+            binding.theHour.text = hour.timestamp.toString()
+            binding.hourTemp.text = hour.temp.toString()
             Picasso.get().load("https://openweathermap.org/img/wn/10d@2x.png")
                 .resize(200, 200)
                 .into(binding.hourImage)

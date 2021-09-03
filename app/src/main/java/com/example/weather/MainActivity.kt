@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -20,11 +21,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var recyclerAdapterHour: HoursWeatherAdapter
-
-    private val openWeatherService by lazy {
-        OpenWeatherServiceImpl()
-    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,32 +29,5 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        loadCurrentWeather()
-    }
-
-    private fun loadCurrentWeather() {
-        if (!openWeatherService.isNetworkAvailable(this)) {
-            displayError("Network not available")
-            return
-        }
-
-        val ai: ApplicationInfo = applicationContext.packageManager
-            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
-        val appId = ai.metaData["openWeatherAPIKey"] // see AndroidManifest.xml
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = openWeatherService.getWeatherInfo(48.85,2.35,"fr", appId.toString())
-            withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    displayError(response.body()?.hourly.toString())
-                } else {
-                    displayError("Error loading data weather from API")
-                }
-            }
-        }
-    }
-    
-    private fun displayError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 }

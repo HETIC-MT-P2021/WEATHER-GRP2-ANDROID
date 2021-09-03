@@ -1,7 +1,11 @@
 package com.example.weather.ui.home
 
+import android.app.Application
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +22,15 @@ import com.example.weather.R
 import com.example.weather.adapter.DaysWeatherAdapter
 import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.databinding.FragmentHomeBinding
+import com.example.weather.model.CurrentWeatherInfo
+import com.example.weather.model.DailyWeatherInfo
 import com.example.weather.model.HourWeather
+import com.example.weather.model.HourlyWeatherInfo
+import com.example.weather.service.OpenWeatherServiceImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
 
@@ -31,13 +43,54 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
+    var DailyWeatherData : List<DailyWeatherInfo> = listOf()
+    var HoursWeatherData : List<HourlyWeatherInfo> = listOf()
+    lateinit var CurrentWeatherData : CurrentWeatherInfo
+
+    private val openWeatherService by lazy {
+        OpenWeatherServiceImpl()
+    }
+
+    private fun loadCurrentWeather() {
+        if (!openWeatherService.isNetworkAvailable(requireContext())) {
+            displayError("Network not available")
+            return
+        }
+
+        val ai: ApplicationInfo = requireContext().packageManager
+            .getApplicationInfo(requireContext().packageName, PackageManager.GET_META_DATA)
+        val appId = ai.metaData["openWeatherAPIKey"] // see AndroidManifest.xml
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = openWeatherService.getWeatherInfo(48.85,2.35,"fr", appId.toString())
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    Log.d("DEBUG success", response.body().toString());
+
+                    HoursWeatherData = response.body()?.hourly!!
+                    DailyWeatherData = response.body()?.daily!!
+                    CurrentWeatherData = response.body()?.current!!
+
+                    Log.d("DEBUG success", CurrentWeatherData.toString());
+
+                } else {
+                    displayError("Error loading data weather from API")
+                }
+            }
+        }
+    }
+
+    private fun displayError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root

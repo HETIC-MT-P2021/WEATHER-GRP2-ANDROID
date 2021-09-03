@@ -1,58 +1,53 @@
 package com.example.weather.ui.home
 
+import android.app.Application
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.weather.model.DailyWeatherInfo
-import com.example.weather.model.DailyWeatherTempInfo
-import com.example.weather.model.HourWeather
-import com.example.weather.model.WeatherImageInfo
+import com.example.weather.adapter.HoursWeatherAdapter
+import com.example.weather.model.*
+import com.example.weather.service.OpenWeatherServiceImpl
 import com.example.weather.util.DateFormatHelper
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.collections.ArrayList
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _text = MutableLiveData<String>().apply {
         value = "Ensoleillé"
     }
+
+    var DailyWeatherData : List<DailyWeatherInfo> = listOf()
+    var HoursWeatherData : List<HourlyWeatherInfo> = listOf()
+    lateinit var CurrentWeatherData : CurrentWeatherInfo
+
     val text: LiveData<String> = _text
 
-    private val _recyclerViewHours = MutableLiveData<ArrayList<HourWeather>>().apply {
-        val hours: ArrayList<HourWeather> = ArrayList()
-        hours.add(HourWeather(1, "9AM","35°", "image1"))
-        hours.add(HourWeather(2, "10AM", "19°", "image2"))
-        hours.add(HourWeather(3, "11AM ","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        hours.add(HourWeather(3, "11AM","5°", "image3"))
-        value = hours
+    private lateinit var recyclerAdapterHour: HoursWeatherAdapter
+
+    private val _recyclerViewHours = MutableLiveData<List<HourlyWeatherInfo>>().apply {
+        value = HoursWeatherData
     }
-    val recyclerViewHours: LiveData<ArrayList<HourWeather>> = _recyclerViewHours
+    val recyclerViewHours: LiveData<List<HourlyWeatherInfo>> = _recyclerViewHours
 
-    private val _recyclerViewDaily = MutableLiveData<ArrayList<DailyWeatherInfo>>().apply {
-        val hours: ArrayList<DailyWeatherInfo> = ArrayList()
-
-        val ts = "1631271600"
-        val date: String = DateFormatHelper.getDayOfWeek(ts)
-
-        hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(20.00), WeatherImageInfo("test")))
-        hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(12.00), WeatherImageInfo("test")))
-        hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(14.00), WeatherImageInfo("test")))
-        hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(9.00), WeatherImageInfo("test")))
-        hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(27.00), WeatherImageInfo("test")))
-        value = hours
+    private val _recyclerViewDaily = MutableLiveData<List<DailyWeatherInfo>>().apply {
+        value = DailyWeatherData
     }
-    val recyclerViewDaily: LiveData<ArrayList<DailyWeatherInfo>> = _recyclerViewDaily
+    val recyclerViewDaily: LiveData<List<DailyWeatherInfo>> = _recyclerViewDaily
+
+    private fun displayError(message: String) {
+        Toast.makeText(getApplication<Application>().applicationContext, message, Toast.LENGTH_LONG).show()
+    }
+
 
 }

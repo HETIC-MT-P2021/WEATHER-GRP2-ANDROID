@@ -1,6 +1,7 @@
 package com.example.weather.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
@@ -12,7 +13,7 @@ import com.example.weather.model.HourWeather
 import com.squareup.picasso.Picasso
 
 class DaysWeatherAdapter (
-    private val arrayList: ArrayList<DailyWeatherInfo>,
+    private val arrayList: List<DailyWeatherInfo>,
     private val context: Context
 ) : RecyclerView.Adapter<DaysWeatherAdapter.DaysWeatherViewHolder>(){
 
@@ -26,7 +27,7 @@ class DaysWeatherAdapter (
     }
 
     override fun getItemCount(): Int {
-        if(arrayList.size==0){
+        if(arrayList.isEmpty()){
             Toast.makeText(context,"List is empty", Toast.LENGTH_LONG).show()
         }
         return arrayList.size
