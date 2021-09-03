@@ -10,3 +10,4 @@ data class DailyWeatherInfo (
     @SerializedName("weather")
     val weather: List<WeatherImageInfo>
 )
+

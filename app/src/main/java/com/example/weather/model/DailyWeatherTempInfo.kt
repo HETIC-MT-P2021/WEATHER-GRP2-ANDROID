@@ -6,3 +6,4 @@ data class DailyWeatherTempInfo (
     @SerializedName("day")
     val day: Double,
 )
+
