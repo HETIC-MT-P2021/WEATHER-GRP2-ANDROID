@@ -7,15 +7,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.databinding.ActivityMainBinding
 import com.example.weather.service.OpenWeatherServiceImpl
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +19,8 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var recyclerAdapterHour: HoursWeatherAdapter
 
     private val openWeatherService by lazy {
         OpenWeatherServiceImpl()
@@ -62,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
+    
     private fun displayError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
