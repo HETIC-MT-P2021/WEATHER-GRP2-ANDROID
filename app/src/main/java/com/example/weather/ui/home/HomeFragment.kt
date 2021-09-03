@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
+import com.example.weather.adapter.DaysWeatherAdapter
 import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.databinding.FragmentHomeBinding
 import com.example.weather.model.HourWeather
@@ -23,6 +24,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var homeViewModel: HomeViewModel
     lateinit var rvAdapterHours: HoursWeatherAdapter
+    lateinit var rvAdapterDaily: DaysWeatherAdapter
     private var _binding: FragmentHomeBinding? = null
 
     // This property is only valid between onCreateView and
@@ -41,12 +43,12 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         val textView: TextView = binding.weather
-        val rvHours: RecyclerView = binding.hoursWeatherRecyclerView
 
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
 
+        val rvHours: RecyclerView = binding.hoursWeatherRecyclerView
         homeViewModel.recyclerViewHours.observe(viewLifecycleOwner, Observer {
             if (container != null) {
                 val layoutManager = LinearLayoutManager(context)
@@ -54,6 +56,17 @@ class HomeFragment : Fragment() {
                 rvHours.layoutManager = layoutManager
                 rvAdapterHours = HoursWeatherAdapter(it, container.context)
                 rvHours.adapter = rvAdapterHours
+            }
+        })
+
+        val rvDaily: RecyclerView = binding.dailyWeatherRecyclerView
+        homeViewModel.recyclerViewDaily.observe(viewLifecycleOwner, Observer {
+            if (container != null) {
+                val layoutManager = LinearLayoutManager(context)
+                layoutManager.orientation = RecyclerView.HORIZONTAL
+                rvDaily.layoutManager = layoutManager
+                rvAdapterDaily = DaysWeatherAdapter(it, container.context)
+                rvDaily.adapter = rvAdapterDaily
             }
         })
 

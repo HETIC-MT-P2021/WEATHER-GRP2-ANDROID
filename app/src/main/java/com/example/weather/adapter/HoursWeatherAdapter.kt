@@ -15,10 +15,8 @@ class HoursWeatherAdapter (
     private val arrayList: ArrayList<HourWeather>,
     private val context: Context
 ) : RecyclerView.Adapter<HoursWeatherAdapter.HoursWeatherViewHolder>(){
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): HoursWeatherAdapter.HoursWeatherViewHolder {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HoursWeatherAdapter.HoursWeatherViewHolder {
         val binding = RecyclerviewHourBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return HoursWeatherViewHolder(binding)
     }
