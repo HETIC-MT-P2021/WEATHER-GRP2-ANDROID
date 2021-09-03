@@ -21,7 +21,7 @@ class HomeViewModel : ViewModel() {
     val text: LiveData<String> = _text
 
     private val _recyclerViewHours = MutableLiveData<ArrayList<HourWeather>>().apply {
-        var hours: ArrayList<HourWeather> = ArrayList()
+        val hours: ArrayList<HourWeather> = ArrayList()
         hours.add(HourWeather(1, "9AM","35°", "image1"))
         hours.add(HourWeather(2, "10AM", "19°", "image2"))
         hours.add(HourWeather(3, "11AM ","5°", "image3"))
@@ -41,10 +41,10 @@ class HomeViewModel : ViewModel() {
     val recyclerViewHours: LiveData<ArrayList<HourWeather>> = _recyclerViewHours
 
     private val _recyclerViewDaily = MutableLiveData<ArrayList<DailyWeatherInfo>>().apply {
-        var hours: ArrayList<DailyWeatherInfo> = ArrayList()
+        val hours: ArrayList<DailyWeatherInfo> = ArrayList()
 
-        val ts = 1630655321
-        val date: String = DateFormatHelper.getDayOfWeek(ts.toString())
+        val ts = "1631271600"
+        val date: String = DateFormatHelper.getDayOfWeek(ts)
 
         hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(20.00), WeatherImageInfo("test")))
         hours.add(DailyWeatherInfo(date, DailyWeatherTempInfo(12.00), WeatherImageInfo("test")))
