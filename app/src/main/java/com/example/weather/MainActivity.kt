@@ -47,10 +47,10 @@ class MainActivity : AppCompatActivity() {
         val appId = ai.metaData["openWeatherAPIKey"] // see AndroidManifest.xml
 
         CoroutineScope(Dispatchers.IO).launch {
-            val response = openWeatherService.getCurrentWeather("Paris,fr", "fr", appId.toString())
+            val response = openWeatherService.getWeatherInfo(48.85,2.35,"fr", appId.toString())
             withContext(Dispatchers.Main) {
                 if (response.isSuccessful) {
-                    displayError(response.body()?.main?.temp.toString())
+                    displayError(response.body()?.hourly.toString())
                 } else {
                     displayError("Error loading data weather from API")
                 }

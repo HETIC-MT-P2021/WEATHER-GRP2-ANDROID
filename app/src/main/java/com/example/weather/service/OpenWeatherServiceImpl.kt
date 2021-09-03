@@ -1,13 +1,9 @@
 package com.example.weather.service
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
-import androidx.annotation.RequiresApi
-import com.example.weather.model.CurrentWeatherResponse
+import com.example.weather.model.WeatherInfoResponse
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -42,6 +38,7 @@ class OpenWeatherServiceImpl {
             .build()
     }
 
-    suspend fun getCurrentWeather(location: String, languageCode: String, appId: String): Response<CurrentWeatherResponse> =
-        getRetrofit().create(OpenWeatherService::class.java).getCurrentWeather(location, languageCode, "metric", appId)
+    suspend fun getWeatherInfo(latitude: Double, longitude: Double, languageCode: String, appId: String): Response<WeatherInfoResponse> =
+        getRetrofit().create(OpenWeatherService::class.java).getWeatherInfo(latitude,
+            longitude, languageCode,"minutely", "metric", appId)
 }
