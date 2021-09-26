@@ -34,7 +34,7 @@ class HoursWeatherAdapter (
 
     inner  class HoursWeatherViewHolder(private val binding: RecyclerviewHourBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(hour: HourlyWeatherInfo){
-            binding.theHour.text = DateFormatHelper.getHour(hour.timestamp.toString())
+            binding.theHour.text = DateFormatHelper.getHour(hour.timestamp.toString()) + ":00"
             binding.hourTemp.text = Convert.doubleToTemp(hour.temp)
             Picasso.get().load("https://openweathermap.org/img/wn/" + hour.weather[0].icon + "@2x.png")
                 .resize(200, 200)

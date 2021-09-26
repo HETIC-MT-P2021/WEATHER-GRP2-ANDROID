@@ -87,8 +87,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                     recyclerViewHours.postValue(response.body()?.hourly!!)
 
-                    val dailyExceptToday = response.body()?.daily?.drop(1)
-                    recyclerViewDaily.postValue(dailyExceptToday)
+                    recyclerViewDaily.postValue(response.body()?.daily!!)
                 } else {
                     displayError("Error loading data weather from API")
                 }

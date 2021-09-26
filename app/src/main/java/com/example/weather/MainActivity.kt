@@ -1,5 +1,6 @@
 package com.example.weather
 
+import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.databinding.ActivityMainBinding
 import com.example.weather.service.OpenWeatherServiceImpl
+import com.example.weather.util.DateFormatHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

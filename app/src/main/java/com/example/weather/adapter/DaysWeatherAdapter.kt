@@ -10,6 +10,7 @@ import com.example.weather.model.DailyWeatherInfo
 import com.example.weather.util.Convert
 import com.example.weather.util.DateFormatHelper
 import com.squareup.picasso.Picasso
+import java.util.*
 
 class DaysWeatherAdapter (
     private val arrayList: List<DailyWeatherInfo>,
@@ -22,7 +23,7 @@ class DaysWeatherAdapter (
     }
 
     override fun onBindViewHolder(holder: DaysWeatherViewHolder, position: Int) {
-        holder.bind(arrayList[position])
+        holder.bind(arrayList[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -33,8 +34,16 @@ class DaysWeatherAdapter (
     }
 
     inner  class DaysWeatherViewHolder(private val binding: RecyclerviewRowDailyBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(day: DailyWeatherInfo){
-            binding.theDay.text = DateFormatHelper.getDayOfWeek(day.timestamp.toString())
+        fun bind(day: DailyWeatherInfo, position: Int){
+            var currentDay = "Today"
+            if (position > 0) {
+                currentDay = DateFormatHelper.getDayOfWeek(day.timestamp.toString()).replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.ROOT
+                    ) else it.toString()
+                }
+            }
+            binding.theDay.text = currentDay
             binding.dayTemp.text = Convert.doubleToTemp(day.temp.day)
             Picasso.get().load("https://openweathermap.org/img/wn/" + day.weather[0].icon + "@2x.png")
                 .resize(200, 200)
