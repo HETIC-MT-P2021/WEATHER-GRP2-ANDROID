@@ -1,15 +1,14 @@
 package com.example.weather.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.RecyclerviewHourBinding
 import com.example.weather.databinding.RecyclerviewRowDailyBinding
 import com.example.weather.model.DailyWeatherInfo
-import com.example.weather.model.HourWeather
+import com.example.weather.util.Convert
+import com.example.weather.util.DateFormatHelper
 import com.squareup.picasso.Picasso
 
 class DaysWeatherAdapter (
@@ -35,9 +34,9 @@ class DaysWeatherAdapter (
 
     inner  class DaysWeatherViewHolder(private val binding: RecyclerviewRowDailyBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(day: DailyWeatherInfo){
-            binding.theDay.text = day.timestamp.toString()
-            binding.dayTemp.text = day.temp.day.toString()
-            Picasso.get().load("https://openweathermap.org/img/wn/10d@2x.png")
+            binding.theDay.text = DateFormatHelper.getDayOfWeek(day.timestamp.toString())
+            binding.dayTemp.text = Convert.doubleToTemp(day.temp.day)
+            Picasso.get().load("https://openweathermap.org/img/wn/" + day.weather[0].icon + "@2x.png")
                 .resize(200, 200)
                 .into(binding.weatherImage)
         }

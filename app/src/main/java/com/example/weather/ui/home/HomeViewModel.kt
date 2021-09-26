@@ -4,21 +4,17 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.model.*
-import com.example.weather.service.OpenWeatherService
 import com.example.weather.service.OpenWeatherServiceImpl
-import kotlinx.coroutines.CoroutineScope
+import com.example.weather.util.Convert
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -26,32 +22,37 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         OpenWeatherServiceImpl()
     }
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "Ensoleillé"
+    private var currentWeatherIcon: MutableLiveData<String> = MutableLiveData()
+    fun getCurrentWeatherIcon(): MutableLiveData<String> {
+        return currentWeatherIcon;
     }
-    val text: LiveData<String> = _text
 
-    lateinit var recyclerViewHours: MutableLiveData<List<HourlyWeatherInfo>>
+    private var currentWeatherTemp: MutableLiveData<String> = MutableLiveData()
+    fun getCurrentWeatherTemp(): MutableLiveData<String> {
+        return currentWeatherTemp;
+    }
+
+    private var currentWeatherDescription: MutableLiveData<String> = MutableLiveData()
+    fun getCurrentWeatherDescription(): MutableLiveData<String> {
+        return currentWeatherDescription;
+    }
+
+    private var currentWeatherAfternoonAndMorning: MutableLiveData<String> = MutableLiveData()
+    fun getCurrentWeatherAfternoonAndMorning(): MutableLiveData<String> {
+        return currentWeatherAfternoonAndMorning;
+    }
+
+    private var recyclerViewHours: MutableLiveData<List<HourlyWeatherInfo>> = MutableLiveData()
     fun getRecyclerHours(): MutableLiveData<List<HourlyWeatherInfo>> {
         return recyclerViewHours;
     }
 
-    lateinit var recyclerViewDaily: MutableLiveData<List<DailyWeatherInfo>>
+    private var recyclerViewDaily: MutableLiveData<List<DailyWeatherInfo>> = MutableLiveData()
     fun getRecyclerDaily(): MutableLiveData<List<DailyWeatherInfo>> {
         return recyclerViewDaily;
     }
 
-    init {
-        recyclerViewHours = MutableLiveData()
-        recyclerViewDaily = MutableLiveData()
-    }
-
-    private fun displayError(message: String) {
-        Toast.makeText(getApplication<Application>().applicationContext, message, Toast.LENGTH_LONG).show()
-    }
-
     private val context: Context = application.applicationContext
-
     fun loadCurrentWeather() {
         if (!openWeatherService.isNetworkAvailable(context)) {
             displayError("Network not available")
@@ -66,14 +67,50 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             val response = openWeatherService.getWeatherInfo(48.85,2.35,"fr", appId.toString())
             withContext(Dispatchers.Main) {
                 if (response.isSuccessful) {
-                    recyclerViewHours.postValue(response.body()?.hourly!!)
-                    recyclerViewDaily.postValue(response.body()?.daily!!)
+                    val weatherInfo = response.body()?.current?.weather?.get(0)
+                    currentWeatherIcon.postValue(weatherInfo?.icon)
 
-                    //CurrentWeatherData = response.body()?.current!!
+                    currentWeatherTemp.postValue(response.body()?.current?.temp?.let {
+                        Convert.doubleToTemp(
+                            it
+                        )
+                    })
+
+                    currentWeatherDescription.postValue(weatherInfo?.description?.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.ROOT
+                        ) else it.toString()
+                    })
+
+                    val todayTemp = getCurrentTempsAfternoonAndMorning(response.body()?.daily?.get(0)?.temp)
+                    currentWeatherAfternoonAndMorning.postValue(todayTemp)
+
+                    recyclerViewHours.postValue(response.body()?.hourly!!)
+
+                    val dailyExceptToday = response.body()?.daily?.drop(1)
+                    recyclerViewDaily.postValue(dailyExceptToday)
                 } else {
                     displayError("Error loading data weather from API")
                 }
             }
         }
+    }
+
+    private fun getCurrentTempsAfternoonAndMorning(currentWeatherInfo: DailyWeatherTempInfo?): String {
+        val currentWeatherAfternoon = currentWeatherInfo?.day?.let {
+            Convert.doubleToTemp(
+                it
+            )
+        }
+        val currentWeatherMorning = currentWeatherInfo?.morning?.let {
+            Convert.doubleToTemp(
+                it
+            )
+        }
+        return "$currentWeatherAfternoon/$currentWeatherMorning"
+    }
+
+    private fun displayError(message: String) {
+        Toast.makeText(getApplication<Application>().applicationContext, message, Toast.LENGTH_LONG).show()
     }
 }

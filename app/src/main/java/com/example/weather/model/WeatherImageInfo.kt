@@ -5,4 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class WeatherImageInfo (
     @SerializedName("icon")
     val icon: String,
+
+    @SerializedName("description")
+    val description: String,
 )

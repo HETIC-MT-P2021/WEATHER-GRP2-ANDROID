@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -28,6 +29,7 @@ import com.example.weather.model.DailyWeatherInfo
 import com.example.weather.model.HourWeather
 import com.example.weather.model.HourlyWeatherInfo
 import com.example.weather.service.OpenWeatherServiceImpl
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,54 +46,47 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    /*private val openWeatherService by lazy {
-        OpenWeatherServiceImpl()
-    }*/
-
-    /*private fun loadCurrentWeather() {
-        if (!openWeatherService.isNetworkAvailable(requireContext())) {
-            displayError("Network not available")
-            return
-        }
-
-        val ai: ApplicationInfo = requireContext().packageManager
-            .getApplicationInfo(requireContext().packageName, PackageManager.GET_META_DATA)
-        val appId = ai.metaData["openWeatherAPIKey"] // see AndroidManifest.xml
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = openWeatherService.getWeatherInfo(48.85,2.35,"fr", appId.toString())
-            withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    Log.d("DEBUG success", response.body().toString());
-
-                    homeViewModel.HoursWeatherData = response.body()?.hourly!!
-                    homeViewModel.DailyWeatherData = response.body()?.daily!!
-                    homeViewModel.CurrentWeatherData = response.body()?.current!!
-                } else {
-                    displayError("Error loading data weather from API")
-                }
-            }
-        }
-    }*/
-
-    /*private fun displayError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-    }*/
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        //loadCurrentWeather()
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.weather
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+        bindValueToXMLElement(container)
+
+        homeViewModel.loadCurrentWeather()
+        return root
+    }
+
+    /**
+     *  Bind values to activity elements, it allows to get data from API and
+     *  update dynamically values
+     */
+    private fun bindValueToXMLElement(container: ViewGroup?) {
+        val currentWeatherIcon: ImageView = binding.currentWeatherIcon
+        homeViewModel.getCurrentWeatherIcon().observe(viewLifecycleOwner, Observer {
+            Picasso.get().load("https://openweathermap.org/img/wn/$it@2x.png")
+                .resize(400, 400)
+                .into(currentWeatherIcon)
+        })
+
+        val currentWeatherTemp: TextView = binding.currentWeatherTemp
+        homeViewModel.getCurrentWeatherTemp().observe(viewLifecycleOwner, Observer {
+            currentWeatherTemp.text = it
+        })
+
+        val currentWeatherDesc: TextView = binding.weather
+        homeViewModel.getCurrentWeatherDescription().observe(viewLifecycleOwner, Observer {
+            currentWeatherDesc.text = it
+        })
+
+        val currentWeatherAfternoonAndMorning: TextView = binding.currentWeatherAfternoonAndMorning
+        homeViewModel.getCurrentWeatherAfternoonAndMorning().observe(viewLifecycleOwner, Observer {
+            currentWeatherAfternoonAndMorning.text = it
         })
 
         val rvHours: RecyclerView = binding.hoursWeatherRecyclerView
@@ -116,8 +111,6 @@ class HomeFragment : Fragment() {
             }
         })
 
-        homeViewModel.loadCurrentWeather()
-        return root
     }
 
     override fun onDestroyView() {

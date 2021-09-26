@@ -8,7 +8,16 @@ class DateFormatHelper {
         @JvmStatic
         fun getDayOfWeek(timestamp: String): String {
             //TODO: Check if the value returned is right
-            val sdf = SimpleDateFormat("EEEE", Locale.ENGLISH) // EEEE for all letters of a day
+            val sdf = SimpleDateFormat("EEEE", Locale.FRANCE) // EEEE for all letters of a day
+            val tsLong: Long = timestamp.toLong()
+            val date = Date(tsLong)
+
+            return sdf.format(date)
+        }
+
+        fun getHour(timestamp: String): String {
+            //TODO: Check if the value returned is right
+            val sdf = SimpleDateFormat("H", Locale.FRANCE) // EEEE for all letters of a day
             val tsLong: Long = timestamp.toLong()
             val date = Date(tsLong)
 

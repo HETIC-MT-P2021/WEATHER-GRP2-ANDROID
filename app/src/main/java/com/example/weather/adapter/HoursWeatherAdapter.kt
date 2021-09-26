@@ -2,14 +2,13 @@ package com.example.weather.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.R
 import com.example.weather.databinding.RecyclerviewHourBinding
-import com.example.weather.model.HourWeather
 import com.example.weather.model.HourlyWeatherInfo
+import com.example.weather.util.Convert
+import com.example.weather.util.DateFormatHelper
 import com.squareup.picasso.Picasso
 
 class HoursWeatherAdapter (
@@ -27,7 +26,7 @@ class HoursWeatherAdapter (
     }
 
     override fun getItemCount(): Int {
-        if(arrayList.size==0){
+        if(arrayList.isEmpty()){
             Toast.makeText(context,"List is empty", Toast.LENGTH_LONG).show()
         }
         return arrayList.size
@@ -35,9 +34,9 @@ class HoursWeatherAdapter (
 
     inner  class HoursWeatherViewHolder(private val binding: RecyclerviewHourBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(hour: HourlyWeatherInfo){
-            binding.theHour.text = hour.timestamp.toString()
-            binding.hourTemp.text = hour.temp.toString()
-            Picasso.get().load("https://openweathermap.org/img/wn/10d@2x.png")
+            binding.theHour.text = DateFormatHelper.getHour(hour.timestamp.toString())
+            binding.hourTemp.text = Convert.doubleToTemp(hour.temp)
+            Picasso.get().load("https://openweathermap.org/img/wn/" + hour.weather[0].icon + "@2x.png")
                 .resize(200, 200)
                 .into(binding.hourImage)
         }
