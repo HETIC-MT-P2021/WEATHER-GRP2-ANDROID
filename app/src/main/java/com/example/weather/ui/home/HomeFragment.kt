@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,16 +44,11 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-
-    var DailyWeatherData : List<DailyWeatherInfo> = listOf()
-    var HoursWeatherData : List<HourlyWeatherInfo> = listOf()
-    lateinit var CurrentWeatherData : CurrentWeatherInfo
-
-    private val openWeatherService by lazy {
+    /*private val openWeatherService by lazy {
         OpenWeatherServiceImpl()
-    }
+    }*/
 
-    private fun loadCurrentWeather() {
+    /*private fun loadCurrentWeather() {
         if (!openWeatherService.isNetworkAvailable(requireContext())) {
             displayError("Network not available")
             return
@@ -68,22 +64,19 @@ class HomeFragment : Fragment() {
                 if (response.isSuccessful) {
                     Log.d("DEBUG success", response.body().toString());
 
-                    HoursWeatherData = response.body()?.hourly!!
-                    DailyWeatherData = response.body()?.daily!!
-                    CurrentWeatherData = response.body()?.current!!
-
-                    Log.d("DEBUG success", CurrentWeatherData.toString());
-
+                    homeViewModel.HoursWeatherData = response.body()?.hourly!!
+                    homeViewModel.DailyWeatherData = response.body()?.daily!!
+                    homeViewModel.CurrentWeatherData = response.body()?.current!!
                 } else {
                     displayError("Error loading data weather from API")
                 }
             }
         }
-    }
+    }*/
 
-    private fun displayError(message: String) {
+    /*private fun displayError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-    }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,18 +84,18 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        //loadCurrentWeather()
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val textView: TextView = binding.weather
-
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
 
         val rvHours: RecyclerView = binding.hoursWeatherRecyclerView
-        homeViewModel.recyclerViewHours.observe(viewLifecycleOwner, Observer {
+        homeViewModel.getRecyclerHours().observe(viewLifecycleOwner, Observer {
             if (container != null) {
                 val layoutManager = LinearLayoutManager(context)
                 layoutManager.orientation = RecyclerView.HORIZONTAL
@@ -113,7 +106,7 @@ class HomeFragment : Fragment() {
         })
 
         val rvDaily: RecyclerView = binding.dailyWeatherRecyclerView
-        homeViewModel.recyclerViewDaily.observe(viewLifecycleOwner, Observer {
+        homeViewModel.getRecyclerDaily().observe(viewLifecycleOwner, Observer {
             if (container != null) {
                 val layoutManager = LinearLayoutManager(context)
                 layoutManager.orientation = RecyclerView.HORIZONTAL
@@ -123,6 +116,7 @@ class HomeFragment : Fragment() {
             }
         })
 
+        homeViewModel.loadCurrentWeather()
         return root
     }
 

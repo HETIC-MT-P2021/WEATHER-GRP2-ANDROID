@@ -6,48 +6,74 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.model.*
+import com.example.weather.service.OpenWeatherService
 import com.example.weather.service.OpenWeatherServiceImpl
-import com.example.weather.util.DateFormatHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
-import kotlin.collections.ArrayList
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val openWeatherService by lazy {
+        OpenWeatherServiceImpl()
+    }
 
     private val _text = MutableLiveData<String>().apply {
         value = "Ensoleillé"
     }
-
-    var DailyWeatherData : List<DailyWeatherInfo> = listOf()
-    var HoursWeatherData : List<HourlyWeatherInfo> = listOf()
-    lateinit var CurrentWeatherData : CurrentWeatherInfo
-
     val text: LiveData<String> = _text
 
-    private lateinit var recyclerAdapterHour: HoursWeatherAdapter
-
-    private val _recyclerViewHours = MutableLiveData<List<HourlyWeatherInfo>>().apply {
-        value = HoursWeatherData
+    lateinit var recyclerViewHours: MutableLiveData<List<HourlyWeatherInfo>>
+    fun getRecyclerHours(): MutableLiveData<List<HourlyWeatherInfo>> {
+        return recyclerViewHours;
     }
-    val recyclerViewHours: LiveData<List<HourlyWeatherInfo>> = _recyclerViewHours
 
-    private val _recyclerViewDaily = MutableLiveData<List<DailyWeatherInfo>>().apply {
-        value = DailyWeatherData
+    lateinit var recyclerViewDaily: MutableLiveData<List<DailyWeatherInfo>>
+    fun getRecyclerDaily(): MutableLiveData<List<DailyWeatherInfo>> {
+        return recyclerViewDaily;
     }
-    val recyclerViewDaily: LiveData<List<DailyWeatherInfo>> = _recyclerViewDaily
+
+    init {
+        recyclerViewHours = MutableLiveData()
+        recyclerViewDaily = MutableLiveData()
+    }
 
     private fun displayError(message: String) {
         Toast.makeText(getApplication<Application>().applicationContext, message, Toast.LENGTH_LONG).show()
     }
 
+    private val context: Context = application.applicationContext
 
+    fun loadCurrentWeather() {
+        if (!openWeatherService.isNetworkAvailable(context)) {
+            displayError("Network not available")
+            return
+        }
+
+        val ai: ApplicationInfo = context.packageManager
+            .getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+        val appId = ai.metaData["openWeatherAPIKey"] // see AndroidManifest.xml
+
+        viewModelScope.launch {
+            val response = openWeatherService.getWeatherInfo(48.85,2.35,"fr", appId.toString())
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    recyclerViewHours.postValue(response.body()?.hourly!!)
+                    recyclerViewDaily.postValue(response.body()?.daily!!)
+
+                    //CurrentWeatherData = response.body()?.current!!
+                } else {
+                    displayError("Error loading data weather from API")
+                }
+            }
+        }
+    }
 }
