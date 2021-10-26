@@ -35,18 +35,17 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:id="@+id/imageView"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
-                            android:background="#ffff00" />
+                            android:id="@+id/currentWeatherIcon"
+                            android:layout_marginRight="-45px"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
                         <TextView
-                            android:id="@+id/temp2"
+                            android:id="@+id/currentWeatherTemp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignBaseline="@id/imageView"
+                            android:layout_alignBaseline="@id/currentWeatherIcon"
                             android:layout_marginLeft="20dp"
-                            android:text="32°"
                             android:textColor="@color/white"
                             android:textSize="100dp" />
                     </LinearLayout>
@@ -56,7 +55,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Ensoleillé"
                         android:textColor="@color/white"
                         android:textSize="30dp" />
 
@@ -113,7 +111,7 @@
                     android:layout_weight="1" />
 
                 <TextView
-                    android:id="@+id/today_date"
+                    android:id="@+id/currentWeatherAfternoonAndMorning"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20dp"

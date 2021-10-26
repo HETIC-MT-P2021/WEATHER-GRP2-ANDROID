@@ -1,15 +1,21 @@
 package com.example.weather.ui.home
 
+import android.app.Application
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +24,16 @@ import com.example.weather.R
 import com.example.weather.adapter.DaysWeatherAdapter
 import com.example.weather.adapter.HoursWeatherAdapter
 import com.example.weather.databinding.FragmentHomeBinding
+import com.example.weather.model.CurrentWeatherInfo
+import com.example.weather.model.DailyWeatherInfo
 import com.example.weather.model.HourWeather
+import com.example.weather.model.HourlyWeatherInfo
+import com.example.weather.service.OpenWeatherServiceImpl
+import com.squareup.picasso.Picasso
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
 
@@ -36,20 +51,46 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.weather
+        bindValueToXMLElement(container)
 
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+        homeViewModel.loadCurrentWeather()
+        return root
+    }
+
+    /**
+     *  Bind values to activity elements, it allows to get data from API and
+     *  update dynamically values
+     */
+    private fun bindValueToXMLElement(container: ViewGroup?) {
+        val currentWeatherIcon: ImageView = binding.currentWeatherIcon
+        homeViewModel.getCurrentWeatherIcon().observe(viewLifecycleOwner, Observer {
+            Picasso.get().load("https://openweathermap.org/img/wn/$it@2x.png")
+                .resize(400, 400)
+                .into(currentWeatherIcon)
+        })
+
+        val currentWeatherTemp: TextView = binding.currentWeatherTemp
+        homeViewModel.getCurrentWeatherTemp().observe(viewLifecycleOwner, Observer {
+            currentWeatherTemp.text = it
+        })
+
+        val currentWeatherDesc: TextView = binding.weather
+        homeViewModel.getCurrentWeatherDescription().observe(viewLifecycleOwner, Observer {
+            currentWeatherDesc.text = it
+        })
+
+        val currentWeatherAfternoonAndMorning: TextView = binding.currentWeatherAfternoonAndMorning
+        homeViewModel.getCurrentWeatherAfternoonAndMorning().observe(viewLifecycleOwner, Observer {
+            currentWeatherAfternoonAndMorning.text = it
         })
 
         val rvHours: RecyclerView = binding.hoursWeatherRecyclerView
-        homeViewModel.recyclerViewHours.observe(viewLifecycleOwner, Observer {
+        homeViewModel.getRecyclerHours().observe(viewLifecycleOwner, Observer {
             if (container != null) {
                 val layoutManager = LinearLayoutManager(context)
                 layoutManager.orientation = RecyclerView.HORIZONTAL
@@ -60,7 +101,7 @@ class HomeFragment : Fragment() {
         })
 
         val rvDaily: RecyclerView = binding.dailyWeatherRecyclerView
-        homeViewModel.recyclerViewDaily.observe(viewLifecycleOwner, Observer {
+        homeViewModel.getRecyclerDaily().observe(viewLifecycleOwner, Observer {
             if (container != null) {
                 val layoutManager = LinearLayoutManager(context)
                 layoutManager.orientation = RecyclerView.HORIZONTAL
@@ -70,7 +111,6 @@ class HomeFragment : Fragment() {
             }
         })
 
-        return root
     }
 
     override fun onDestroyView() {
