@@ -53,7 +53,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private val context: Context = application.applicationContext
-    fun loadCurrentWeather() {
+    fun loadCurrentWeather(latitude: Double, longitude: Double) {
         if (!openWeatherService.isNetworkAvailable(context)) {
             displayError("Network not available")
             return
